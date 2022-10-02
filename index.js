@@ -624,6 +624,7 @@ instance.prototype.emptyCurrentState = function () {
 		current_random_number: Math.floor(Math.random() * 10)+1,
 		time_since_last_clock_update: 'N/A',
 		connection_timer: '0',
+		current_slide_text: '',
 	}
 
 	self.currentState.dynamicVariablesDefs = [
@@ -707,6 +708,10 @@ instance.prototype.emptyCurrentState = function () {
 			label: 'Connection Timer',
 			name: 'connection_timer',
 		},
+		{
+			label: 'Current Slide Text',
+			name: 'current_slide_text'
+		}
 	]
 
 	// Update Companion with the default state if each dynamic variable.
@@ -3240,6 +3245,20 @@ instance.prototype.onSDWebSocketMessage = function (message) {
 				self.updateVariable('video_countdown_timer_hourless',self.formatClockTime(objData.txt, false))
 				// Convert video countdown timer to total seconds
 				self.updateVariable('video_countdown_timer_totalseconds',self.convertToTotalSeconds(objData.txt))
+			}
+			break
+		
+		case 'fv':
+			if (objData.hasOwnProperty('ary')) {
+				objData.ary.forEach(element => {
+					if (element.hasOwnProperty("acn") &&
+						element.acn == "cs" &&
+						element.hasOwnProperty("txt")){
+							self.updateVariable("current_slide_text", element.txt)
+					}
+					})
+				// Record new video countdown timer value in dynamic var
+				self.updateVariable('video_countdown_timer', objData.txt)
 			}
 			break
 	}
